@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FestivalNow - 대한민국 축제 탐색 플랫폼</title>
+    <meta name="description" content="대한민국 전국의 축제 정보를 검색량 기반 데이터로 확인하세요.">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+KR:wght@300;500;700&display=swap"
+        rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dark-mode">
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <i data-lucide="sparkles"></i>
+                <span>FestivalNow</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home" class="active">홈</a></li>
+                <li><a href="#map">지역별 지도</a></li>
+                <li><a href="#calendar">공연 일정</a></li>
+            </ul>
+            <div class="search-bar">
+                <input type="text" placeholder="축제 이름을 검색해보세요...">
+                <button title="Search"><i data-lucide="search"></i></button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section: Popular Festivals -->
+        <section id="hero" class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>지금 가장 <span class="highlight">핫한</span> 축제<br>화제의 중심을 확인하세요</h1>
+                    <p>문화 빅데이터 검색량 기준 TOP 5 축제를 실시간으로 추천해 드립니다.</p>
+                </div>
+                <div class="hero-carousel" id="hero-carousel">
+                    <!-- JS로 인기 축제 카드 삽입 -->
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content: Exploration -->
+        <section id="explore" class="section container">
+            <div class="section-header">
+                <h2>전국 축제 탐색</h2>
+                <div class="filter-group">
+                    <button class="filter-chip active" data-category="all">전체</button>
+                    <button class="filter-chip" data-category="cultural">전통/문화</button>
+                    <button class="filter-chip" data-category="music">음악/예술</button>
+                    <button class="filter-chip" data-category="nature">자연/꽃</button>
+                    <button class="filter-chip" data-category="food">푸드/특산물</button>
+                </div>
+            </div>
+
+            <div class="content-layout">
+                <!-- Left: Festival List -->
+                <div class="festival-list-container">
+                    <div class="list-controls">
+                        <span class="total-count">총 <span id="count-value">0</span>개의 축제</span>
+                        <select id="sort-select">
+                            <option value="popularity">인기순</option>
+                            <option value="date">날짜순</option>
+                        </select>
+                    </div>
+                    <div id="festival-list" class="festival-list">
+                        <!-- JS로 리스트 카드 삽입 -->
+                    </div>
+                </div>
+
+                <!-- Right: Map View -->
+                <div class="map-container" id="map-view">
+                    <div id="kakao-map" class="map-placeholder">
+                        <div class="placeholder-content">
+                            <i data-lucide="map-pin"></i>
+                            <p>지도를 불러오려면 클릭하세요</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <div class="logo small">FestivalNow</div>
+                    <p>대한민국의 모든 축제를 한눈에. 빅데이터가 제안하는 완벽한 나들이.</p>
+                </div>
+                <div class="footer-data">
+                    <p>데이터 출처: 문화 빅데이터 플랫폼 (한국문화정보원)</p>
+                    <p>&copy; 2026 FestivalNow. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
