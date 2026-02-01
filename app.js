@@ -104,7 +104,8 @@ function setupEventListeners() {
     });
 
     // 지도 연동 (실제 구현)
-    initMap();
+    // 지도 SDK 로드
+    loadKakaoMap();
 
     const listItems = document.getElementById('festival-list');
     listItems.addEventListener('click', (e) => {
@@ -131,59 +132,62 @@ function setupEventListeners() {
 // 전역 맵 변수
 let map;
 
+function loadKakaoMap() {
+    const container = document.getElementById('kakao-map');
+    const script = document.createElement('script');
+    script.src = 'https://dapi.kakao.com/v2/maps/sdk.js?appkey=bfbb7e0eb1797e275bf757c7ed3feb59&autoload=false';
+    script.async = true;
+
+    script.onload = () => {
+        kakao.maps.load(() => {
+            initMap();
+        });
+    };
+
+    script.onerror = () => {
+        container.innerHTML = `
+            <div class="placeholder-content">
+                <i data-lucide="wifi-off" style="color: #ef4444; width: 48px; height: 48px; margin-bottom: 15px;"></i>
+                <p>지도 서버에 연결할 수 없습니다.</p>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px;">브라우저의 광고 차단 기능을 확인해보세요.</p>
+            </div>
+        `;
+        lucide.createIcons();
+    };
+
+    document.head.appendChild(script);
+}
+
 function initMap() {
     const container = document.getElementById('kakao-map');
 
-    // 1. SDK가 로드되지 않았을 경우 (window.kakao 없음)
-    if (typeof kakao === 'undefined') {
-        // SDK가 아직 로드되지 않았을 수 있으므로 1초 후 재시도
-        setTimeout(() => {
-            if (typeof kakao === 'undefined') {
-                container.innerHTML = `
-                    <div class="placeholder-content">
-                        <i data-lucide="alert-triangle" style="color: #ef4444; width: 48px; height: 48px; margin-bottom: 15px;"></i>
-                        <p>지도 SDK를 불러오지 못했습니다.</p>
-                        <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px;">페이지를 새로고침 하거나 인터넷 연결을 확인해주세요.</p>
-                    </div>
-                `;
-                lucide.createIcons();
-            } else {
-                initMap(); // 재귀 호출
-            }
-        }, 1000);
-        return;
-    }
+    // 이미 맵이 생성되었다면 종료
+    if (container.children.length > 0 && map) return;
 
-    // 2. 검색 시점을 위해 안전하게 load 함수 사용 (autoload=false 대응)
-    kakao.maps.load(function () {
-        // 이미 맵이 생성되었다면 종료
-        if (container.children.length > 0 && map) return;
+    const options = {
+        center: new kakao.maps.LatLng(36.5, 127.5), // 대한민국 중심
+        level: 13
+    };
 
-        const options = {
-            center: new kakao.maps.LatLng(36.5, 127.5), // 대한민국 중심
-            level: 13
-        };
+    try {
+        map = new kakao.maps.Map(container, options);
 
-        try {
-            map = new kakao.maps.Map(container, options);
-
-            // 축제 마커 생성
-            festivalData.forEach(festival => {
-                const markerPosition = new kakao.maps.LatLng(festival.lat, festival.lng);
-                const marker = new kakao.maps.Marker({
-                    position: markerPosition
-                });
-                marker.setMap(map);
-
-                // 마커 클릭 이벤트
-                kakao.maps.event.addListener(marker, 'click', function () {
-                    const moveLatLon = new kakao.maps.LatLng(festival.lat, festival.lng);
-                    map.setCenter(moveLatLon);
-                    map.setLevel(9); // 확대로 변경
-                });
+        // 축제 마커 생성
+        festivalData.forEach(festival => {
+            const markerPosition = new kakao.maps.LatLng(festival.lat, festival.lng);
+            const marker = new kakao.maps.Marker({
+                position: markerPosition
             });
-        } catch (e) {
-            console.error("Map creation failed:", e);
-        }
-    });
+            marker.setMap(map);
+
+            // 마커 클릭 이벤트
+            kakao.maps.event.addListener(marker, 'click', function () {
+                const moveLatLon = new kakao.maps.LatLng(festival.lat, festival.lng);
+                map.setCenter(moveLatLon);
+                map.setLevel(9); // 확대로 변경
+            });
+        });
+    } catch (e) {
+        console.error("Map creation failed:", e);
+    }
 }
