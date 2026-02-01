@@ -131,9 +131,6 @@ function setupEventListeners() {
 // 전역 맵 변수
 let map;
 
-// 전역 맵 변수
-let map;
-
 function initMap() {
     const container = document.getElementById('kakao-map');
 
