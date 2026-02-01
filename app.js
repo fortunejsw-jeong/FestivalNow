@@ -147,7 +147,11 @@ function initMap(retryCount = 0) {
                 <p>지도를 불러오지 못했습니다.</p>
                 <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px; line-height: 1.4;">
                     1. 페이지를 새로고침(F5) 해보세요.<br>
-                    2. 광고 차단 기능을 잠시 꺼주세요.
+                    2. 광고 차단 기능을 잠시 꺼주세요.<br>
+                    <span style="color: #64748b; display: block; margin-top: 5px; font-size: 0.75rem;">
+                        현재 접속 주소: ${window.location.protocol}//${window.location.hostname}<br>
+                        (이 주소가 카카오 개발자 센터에 등록되어 있어야 합니다)
+                    </span>
                 </p>
             </div>
         `;
