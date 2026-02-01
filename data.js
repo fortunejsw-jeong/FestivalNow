@@ -1,4 +1,4 @@
-const festivalData = [
+window.festivalData = [
     {
         id: 1,
         title: "진해군항제",
