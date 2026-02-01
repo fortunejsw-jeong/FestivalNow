@@ -131,19 +131,25 @@ function setupEventListeners() {
 // 전역 맵 변수
 let map;
 
-function initMap() {
+function initMap(retryCount = 0) {
     const container = document.getElementById('kakao-map');
 
-    // 1. SDK 로드 확인
+    // 1. SDK 로드 확인 (재시도 로직 포함)
     if (typeof kakao === 'undefined' || !kakao.maps) {
+        if (retryCount < 20) { // 500ms * 20 = 10초 대기
+            console.log(`Kakao Map loading... retry ${retryCount + 1}`);
+            setTimeout(() => initMap(retryCount + 1), 500);
+            return;
+        }
+
+        // 10초가 지나도 로드되지 않으면 에러 표시
         container.innerHTML = `
             <div class="placeholder-content">
                 <i data-lucide="map-off" style="color: #ef4444; width: 48px; height: 48px; margin-bottom: 15px;"></i>
-                <p>지도 로딩에 실패했습니다.</p>
+                <p>지도를 불러오는 데 실패했습니다.</p>
                 <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px; line-height: 1.4;">
-                    1. F5(새로고침)를 눌러보세요.<br>
-                    2. 광고 차단 프로그램이 있다면 일시 정지해주세요.<br>
-                    3. 회사/학교 네트워크에서는 차단될 수 있습니다.
+                    네트워크 연결이 불안정하거나 광고 차단 기능에 의해 차단되었을 수 있습니다.<br>
+                    (새로고침을 한번 더 시도해보세요)
                 </p>
             </div>
         `;
