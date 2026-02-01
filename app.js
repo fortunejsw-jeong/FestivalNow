@@ -104,8 +104,7 @@ function setupEventListeners() {
     });
 
     // 지도 연동 (실제 구현)
-    // 지도 SDK 로드
-    loadKakaoMap();
+    initMap();
 
     const listItems = document.getElementById('festival-list');
     listItems.addEventListener('click', (e) => {
@@ -132,65 +131,54 @@ function setupEventListeners() {
 // 전역 맵 변수
 let map;
 
-function loadKakaoMap() {
+function initMap() {
     const container = document.getElementById('kakao-map');
-    const script = document.createElement('script');
-    script.src = 'https://dapi.kakao.com/v2/maps/sdk.js?appkey=bfbb7e0eb1797e275bf757c7ed3feb59&autoload=false';
-    script.async = true;
 
-    script.onload = () => {
-        kakao.maps.load(() => {
-            initMap();
-        });
-    };
-
-    script.onerror = () => {
+    // 1. SDK 로드 확인
+    if (typeof kakao === 'undefined' || !kakao.maps) {
         container.innerHTML = `
             <div class="placeholder-content">
-                <i data-lucide="wifi-off" style="color: #ef4444; width: 48px; height: 48px; margin-bottom: 15px;"></i>
-                <p>지도 서버에 연결할 수 없습니다.</p>
+                <i data-lucide="map-off" style="color: #ef4444; width: 48px; height: 48px; margin-bottom: 15px;"></i>
+                <p>지도 로딩에 실패했습니다.</p>
                 <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px; line-height: 1.4;">
-                    1. 브라우저의 광고 차단 기능을 해제해보세요.<br>
-                    2. Kakao Developers에 도메인이 등록되었는지 확인하세요.
+                    1. F5(새로고침)를 눌러보세요.<br>
+                    2. 광고 차단 프로그램이 있다면 일시 정지해주세요.<br>
+                    3. 회사/학교 네트워크에서는 차단될 수 있습니다.
                 </p>
             </div>
         `;
         lucide.createIcons();
-    };
-
-    document.head.appendChild(script);
-}
-
-function initMap() {
-    const container = document.getElementById('kakao-map');
-
-    // 이미 맵이 생성되었다면 종료
-    if (container.children.length > 0 && map) return;
-
-    const options = {
-        center: new kakao.maps.LatLng(36.5, 127.5), // 대한민국 중심
-        level: 13
-    };
-
-    try {
-        map = new kakao.maps.Map(container, options);
-
-        // 축제 마커 생성
-        festivalData.forEach(festival => {
-            const markerPosition = new kakao.maps.LatLng(festival.lat, festival.lng);
-            const marker = new kakao.maps.Marker({
-                position: markerPosition
-            });
-            marker.setMap(map);
-
-            // 마커 클릭 이벤트
-            kakao.maps.event.addListener(marker, 'click', function () {
-                const moveLatLon = new kakao.maps.LatLng(festival.lat, festival.lng);
-                map.setCenter(moveLatLon);
-                map.setLevel(9); // 확대로 변경
-            });
-        });
-    } catch (e) {
-        console.error("Map creation failed:", e);
+        return;
     }
+
+    // 2. 맵 생성 (autoload=false 대응)
+    kakao.maps.load(function () {
+        // 이미 맵이 생성되었다면 종료
+        if (container.children.length > 0 && map) return;
+
+        const options = {
+            center: new kakao.maps.LatLng(36.5, 127.5), // 대한민국 중심
+            level: 13
+        };
+
+        try {
+            map = new kakao.maps.Map(container, options);
+
+            festivalData.forEach(festival => {
+                const markerPosition = new kakao.maps.LatLng(festival.lat, festival.lng);
+                const marker = new kakao.maps.Marker({
+                    position: markerPosition
+                });
+                marker.setMap(map);
+
+                kakao.maps.event.addListener(marker, 'click', function () {
+                    const moveLatLon = new kakao.maps.LatLng(festival.lat, festival.lng);
+                    map.setCenter(moveLatLon);
+                    map.setLevel(9);
+                });
+            });
+        } catch (e) {
+            console.error("Map creation failed:", e);
+        }
+    });
 }
