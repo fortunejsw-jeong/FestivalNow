@@ -131,43 +131,62 @@ function setupEventListeners() {
 // 전역 맵 변수
 let map;
 
+// 전역 맵 변수
+let map;
+
 function initMap() {
     const container = document.getElementById('kakao-map');
 
-    // API 키가 입력되어 있고 SDK가 로드되었는지 확인
-    if (!window.kakao || !window.kakao.maps) {
-        container.innerHTML = `
-            <div class="placeholder-content">
-                <i data-lucide="alert-circle" style="color: #ef4444; width: 48px; height: 48px; margin-bottom: 15px;"></i>
-                <p>Kakao 맵 API 키 설정이 필요합니다.</p>
-                <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px;">index.html 파일에서 'YOUR_KAKAO_API_KEY'를<br>본인의 JavaScript 키로 변경해주세요.</p>
-            </div>
-        `;
-        lucide.createIcons();
+    // 1. SDK가 로드되지 않았을 경우 (window.kakao 없음)
+    if (typeof kakao === 'undefined') {
+        // SDK가 아직 로드되지 않았을 수 있으므로 1초 후 재시도
+        setTimeout(() => {
+            if (typeof kakao === 'undefined') {
+                container.innerHTML = `
+                    <div class="placeholder-content">
+                        <i data-lucide="alert-triangle" style="color: #ef4444; width: 48px; height: 48px; margin-bottom: 15px;"></i>
+                        <p>지도 SDK를 불러오지 못했습니다.</p>
+                        <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px;">페이지를 새로고침 하거나 인터넷 연결을 확인해주세요.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+            } else {
+                initMap(); // 재귀 호출
+            }
+        }, 1000);
         return;
     }
 
-    const options = {
-        center: new kakao.maps.LatLng(36.5, 127.5), // 대한민국 중심
-        level: 13
-    };
+    // 2. 검색 시점을 위해 안전하게 load 함수 사용 (autoload=false 대응)
+    kakao.maps.load(function () {
+        // 이미 맵이 생성되었다면 종료
+        if (container.children.length > 0 && map) return;
 
-    map = new kakao.maps.Map(container, options);
+        const options = {
+            center: new kakao.maps.LatLng(36.5, 127.5), // 대한민국 중심
+            level: 13
+        };
 
-    // 축제 마커 생성
-    festivalData.forEach(festival => {
-        const markerPosition = new kakao.maps.LatLng(festival.lat, festival.lng);
-        const marker = new kakao.maps.Marker({
-            position: markerPosition
-        });
-        marker.setMap(map);
+        try {
+            map = new kakao.maps.Map(container, options);
 
-        // 마커 클릭 이벤트
-        kakao.maps.event.addListener(marker, 'click', function () {
-            // 해당 리스트 아이템으로 스크롤 등의 인터랙션 가능
-            const moveLatLon = new kakao.maps.LatLng(festival.lat, festival.lng);
-            map.setCenter(moveLatLon);
-            map.setLevel(4);
-        });
+            // 축제 마커 생성
+            festivalData.forEach(festival => {
+                const markerPosition = new kakao.maps.LatLng(festival.lat, festival.lng);
+                const marker = new kakao.maps.Marker({
+                    position: markerPosition
+                });
+                marker.setMap(map);
+
+                // 마커 클릭 이벤트
+                kakao.maps.event.addListener(marker, 'click', function () {
+                    const moveLatLon = new kakao.maps.LatLng(festival.lat, festival.lng);
+                    map.setCenter(moveLatLon);
+                    map.setLevel(9); // 확대로 변경
+                });
+            });
+        } catch (e) {
+            console.error("Map creation failed:", e);
+        }
     });
 }
