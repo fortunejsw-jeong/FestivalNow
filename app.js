@@ -149,7 +149,10 @@ function loadKakaoMap() {
             <div class="placeholder-content">
                 <i data-lucide="wifi-off" style="color: #ef4444; width: 48px; height: 48px; margin-bottom: 15px;"></i>
                 <p>지도 서버에 연결할 수 없습니다.</p>
-                <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px;">브라우저의 광고 차단 기능을 확인해보세요.</p>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px; line-height: 1.4;">
+                    1. 브라우저의 광고 차단 기능을 해제해보세요.<br>
+                    2. Kakao Developers에 도메인이 등록되었는지 확인하세요.
+                </p>
             </div>
         `;
         lucide.createIcons();
