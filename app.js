@@ -134,22 +134,20 @@ let map;
 function initMap(retryCount = 0) {
     const container = document.getElementById('kakao-map');
 
-    // 1. SDK 로드 확인 (재시도 로직 포함)
+    // 1. SDK 로드 확인 (재시도 로직)
     if (typeof kakao === 'undefined' || !kakao.maps) {
-        if (retryCount < 20) { // 500ms * 20 = 10초 대기
-            console.log(`Kakao Map loading... retry ${retryCount + 1}`);
+        if (retryCount < 20) { // 10초 대기
             setTimeout(() => initMap(retryCount + 1), 500);
             return;
         }
 
-        // 10초가 지나도 로드되지 않으면 에러 표시
         container.innerHTML = `
             <div class="placeholder-content">
                 <i data-lucide="map-off" style="color: #ef4444; width: 48px; height: 48px; margin-bottom: 15px;"></i>
-                <p>지도를 불러오는 데 실패했습니다.</p>
+                <p>지도를 불러오지 못했습니다.</p>
                 <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px; line-height: 1.4;">
-                    네트워크 연결이 불안정하거나 광고 차단 기능에 의해 차단되었을 수 있습니다.<br>
-                    (새로고침을 한번 더 시도해보세요)
+                    1. 페이지를 새로고침(F5) 해보세요.<br>
+                    2. 광고 차단 기능을 잠시 꺼주세요.
                 </p>
             </div>
         `;
@@ -157,34 +155,32 @@ function initMap(retryCount = 0) {
         return;
     }
 
-    // 2. 맵 생성 (autoload=false 대응)
-    kakao.maps.load(function () {
-        // 이미 맵이 생성되었다면 종료
-        if (container.children.length > 0 && map) return;
+    // 2. 맵 생성 (autoload 없이 즉시 실행)
+    // 이미 맵이 생성되었다면 종료
+    if (container.children.length > 0 && map) return;
 
-        const options = {
-            center: new kakao.maps.LatLng(36.5, 127.5), // 대한민국 중심
-            level: 13
-        };
+    const options = {
+        center: new kakao.maps.LatLng(36.5, 127.5), // 대한민국 중심
+        level: 13
+    };
 
-        try {
-            map = new kakao.maps.Map(container, options);
+    try {
+        map = new kakao.maps.Map(container, options);
 
-            festivalData.forEach(festival => {
-                const markerPosition = new kakao.maps.LatLng(festival.lat, festival.lng);
-                const marker = new kakao.maps.Marker({
-                    position: markerPosition
-                });
-                marker.setMap(map);
-
-                kakao.maps.event.addListener(marker, 'click', function () {
-                    const moveLatLon = new kakao.maps.LatLng(festival.lat, festival.lng);
-                    map.setCenter(moveLatLon);
-                    map.setLevel(9);
-                });
+        festivalData.forEach(festival => {
+            const markerPosition = new kakao.maps.LatLng(festival.lat, festival.lng);
+            const marker = new kakao.maps.Marker({
+                position: markerPosition
             });
-        } catch (e) {
-            console.error("Map creation failed:", e);
-        }
-    });
+            marker.setMap(map);
+
+            kakao.maps.event.addListener(marker, 'click', function () {
+                const moveLatLon = new kakao.maps.LatLng(festival.lat, festival.lng);
+                map.setCenter(moveLatLon);
+                map.setLevel(9);
+            });
+        });
+    } catch (e) {
+        console.error("Map creation failed:", e);
+    }
 }
