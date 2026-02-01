@@ -103,14 +103,71 @@ function setupEventListeners() {
         updateTotalCount(filteredData.length);
     });
 
-    // 지도 연동 (가상)
+    // 지도 연동 (실제 구현)
+    initMap();
+
     const listItems = document.getElementById('festival-list');
     listItems.addEventListener('click', (e) => {
         const item = e.target.closest('.festival-item');
         if (item) {
             const id = item.getAttribute('data-id');
             const festival = festivalData.find(f => f.id == id);
-            alert(`${festival.title} 위치: ${festival.lat}, ${festival.lng}\n(카카오 지도 API 키 설정 시 실제 마커 이동이 가능합니다)`);
+
+            // 지도 이동 및 마커 표시
+            if (window.kakao && window.kakao.maps) {
+                const moveLatLon = new kakao.maps.LatLng(festival.lat, festival.lng);
+                map.setCenter(moveLatLon);
+                map.setLevel(3); // 확대 레벨 조정
+
+                // 기존 마커 제거 후 새 마커 추가 (또는 기존 마커 강조)
+                // 간단하게는 센터 이동만 시켜도 충분함
+            } else {
+                alert('지도 API 키가 설정되지 않았습니다.');
+            }
         }
+    });
+}
+
+// 전역 맵 변수
+let map;
+
+function initMap() {
+    const container = document.getElementById('kakao-map');
+
+    // API 키가 입력되어 있고 SDK가 로드되었는지 확인
+    if (!window.kakao || !window.kakao.maps) {
+        container.innerHTML = `
+            <div class="placeholder-content">
+                <i data-lucide="alert-circle" style="color: #ef4444; width: 48px; height: 48px; margin-bottom: 15px;"></i>
+                <p>Kakao 맵 API 키 설정이 필요합니다.</p>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px;">index.html 파일에서 'YOUR_KAKAO_API_KEY'를<br>본인의 JavaScript 키로 변경해주세요.</p>
+            </div>
+        `;
+        lucide.createIcons();
+        return;
+    }
+
+    const options = {
+        center: new kakao.maps.LatLng(36.5, 127.5), // 대한민국 중심
+        level: 13
+    };
+
+    map = new kakao.maps.Map(container, options);
+
+    // 축제 마커 생성
+    festivalData.forEach(festival => {
+        const markerPosition = new kakao.maps.LatLng(festival.lat, festival.lng);
+        const marker = new kakao.maps.Marker({
+            position: markerPosition
+        });
+        marker.setMap(map);
+
+        // 마커 클릭 이벤트
+        kakao.maps.event.addListener(marker, 'click', function () {
+            // 해당 리스트 아이템으로 스크롤 등의 인터랙션 가능
+            const moveLatLon = new kakao.maps.LatLng(festival.lat, festival.lng);
+            map.setCenter(moveLatLon);
+            map.setLevel(4);
+        });
     });
 }
