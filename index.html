@@ -114,18 +114,6 @@
     <script>
         lucide.createIcons();
     </script>
-    <script>
-        window.addEventListener('load', function () {
-            setTimeout(function () {
-                if (window.kakao && window.kakao.maps) {
-                    // 성공했을 때는 조용히 넘어감 (지도가 뜨는지 확인)
-                    console.log("Kakao Map SDK Loaded Successfully");
-                } else {
-                    alert("⚠️ 지도 스크립트 로드 실패!\n\n1. 등록된 주소: " + window.location.protocol + "//" + window.location.hostname + "\n\n2. 위 주소가 Kakao Developers에 '정확히' 있는지 확인해주세요.\n(http vs https, www 유무 등)");
-                }
-            }, 1000);
-        });
-    </script>
 </body>
 
 </html>
