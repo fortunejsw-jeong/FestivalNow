@@ -117,16 +117,25 @@ nav {
 
 .hero .container {
     display: grid;
-    grid-template-columns: 1fr 1.2fr;
+    grid-template-columns: minmax(300px, 0.8fr) 1.2fr;
+    /* Give content specific min-width, rest to carousel */
     gap: 40px;
     align-items: center;
 }
 
+.hero-content {
+    min-width: 0;
+    /* Prevent flex/grid child blowout */
+}
+
 .hero-content h1 {
-    font-size: 3.5rem;
+    font-size: 3rem;
+    /* Reduced from 3.5rem */
     line-height: 1.2;
     margin-bottom: 20px;
     font-weight: 800;
+    word-break: keep-all;
+    /* Prevent awkward mid-word breaks */
 }
 
 .hero-content .highlight {
@@ -137,8 +146,8 @@ nav {
 
 .hero-content p {
     color: var(--text-muted);
-    font-size: 1.2rem;
-    max-width: 500px;
+    font-size: 1.1rem;
+    max-width: 100%;
 }
 
 /* Hero Carousel - Rolling Effect */

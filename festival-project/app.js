@@ -31,17 +31,17 @@ function initApp() {
 // 상단 인기 축제 (Hero Section) 렌더링
 function renderFeaturedFestivals() {
     const heroCarousel = document.getElementById('hero-carousel');
-    // Top 5 -> Top 7 to make carousel look fuller, or just use Top 5 and duplicate
-    const featured = [...state.data].sort((a, b) => b.popularity - a.popularity).slice(0, 5);
+    // Show Top 10
+    const featured = [...state.data].sort((a, b) => b.popularity - a.popularity).slice(0, 10);
 
-    // Duplicate for seamless infinite scroll
-    const carouselItems = [...featured, ...featured, ...featured];
+    // Duplicate for seamless infinite scroll (Top 10 * 2 is enough for smooth loop usually, or 3)
+    const carouselItems = [...featured, ...featured];
 
     heroCarousel.innerHTML = carouselItems.map((festival, index) => `
         <div class="festival-card-featured" onclick="openModalById(${festival.id})">
-            <img src="${festival.image}" alt="${festival.title}" 
+            <img src="${festival.image}" alt="${festival.title}"
                  onerror="handleImageError(this, 'card')">
-            <div class="rank-badge">HOT #${(index % 5) + 1}</div>
+            <div class="rank-badge">HOT #${(index % 10) + 1}</div>
             <div class="card-overlay">
                 <h3>${festival.title}</h3>
                 <p>${festival.location}</p>

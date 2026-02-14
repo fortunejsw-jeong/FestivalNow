@@ -1,5 +1,5 @@
 (function () {
-    // 1. Seed Data (Top 20)
+    // 1. Seed Data (Top 20) - Fixed/Verified
     const seedData = [
         {
             id: 1, title: "진해군항제", location: "경상남도 창원시", category: "nature",
@@ -123,7 +123,6 @@
         }
     ];
 
-    // 2. Helpers
     const categories = ['nature', 'cultural', 'music', 'food'];
     const regions = ['강원도', '서울특별시', '경기도', '부산광역시', '전라남도', '전라북도', '충청남도', '충청북도', '경상남도', '경상북도', '제주특별자치도', '인천광역시', '대구광역시', '대전광역시', '광주광역시', '울산광역시'];
 
@@ -132,37 +131,47 @@
     }
 
     function generateDate() {
+        const m = (n) => n.toString().padStart(2, '0');
         const startMonth = Math.floor(Math.random() * 12) + 1;
         const endMonth = startMonth;
         const startDay = Math.floor(Math.random() * 20) + 1;
-        const endDay = startDay + Math.floor(Math.random() * 10);
-        const m = (n) => n.toString().padStart(2, '0');
+        const endDay = startDay + Math.floor(Math.random() * 8) + 1;
         return `2026.${m(startMonth)}.${m(startDay)} - 2026.${m(endMonth)}.${m(endDay)}`;
     }
 
-    // 3. Generate 80 more (Total 100)
+    // 3. Generate additional items (Total 100)
     let allData = [...seedData];
 
     for (let i = 21; i <= 100; i++) {
         const seed = getRandomItem(seedData);
         const region = getRandomItem(regions);
         const category = getRandomItem(categories);
-        // Random popularity between 5000 and 50000
-        const randomPop = Math.floor(Math.random() * 45000) + 5000;
+        // Random popularity between 5000 and 45000
+        const randomPop = Math.floor(Math.random() * 40000) + 5000;
 
-        // Randomize location slightly around the seed's lat/lng to avoid stacking perfect duplicates on map
-        // (Just visual variance, functionally they are distinct items)
+        // Slightly random location
         const lat = seed.lat + (Math.random() - 0.5) * 2;
         const lng = seed.lng + (Math.random() - 0.5) * 2;
 
+        // Clean Title Logic: Region + Theme + 'Festival' or similar
+        // Avoid "Jeolla Jeju Festival"
+        let titleSuffix = "문화축제";
+        if (category === 'nature') titleSuffix = "꽃축제";
+        else if (category === 'music') titleSuffix = "음악회";
+        else if (category === 'food') titleSuffix = "특산물축제";
+
+        // e.g., "Gangwon Flower Festival", "Busan Music Festival"
+        // This is safe and non-contradictory.
+        const title = `${region} ${titleSuffix}`;
+
         allData.push({
             id: i,
-            title: `${region} ${seed.title.split(' ')[0]} (No.${i})`, // Mock title
+            title: title,
             location: `${region} 일대`,
             date: generateDate(),
             category: category,
-            description: `${region}에서 펼쳐지는 즐거운 축제! ${seed.description}`,
-            image: seed.image, // Reuse reliable images
+            description: `${region}에서 펼쳐지는 즐거운 ${titleSuffix}. 다양한 체험과 먹거리가 준비되어 있습니다.`,
+            image: seed.image,
             popularity: randomPop,
             lat: parseFloat(lat.toFixed(4)),
             lng: parseFloat(lng.toFixed(4))
@@ -172,6 +181,6 @@
     // 4. Sort by Popularity DESC
     allData.sort((a, b) => b.popularity - a.popularity);
 
-    // 5. Expose to Window
+    // 5. Expose
     window.festivalData = allData;
 })();
