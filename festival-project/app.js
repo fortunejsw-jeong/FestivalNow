@@ -40,8 +40,9 @@ function applyFiltersAndSort() {
 
     // 0. Filter by Search Term
     if (state.searchTerm) {
-        // "강릉단오제" -> "단오제" search should work
-        result = result.filter(item => item.title.includes(state.searchTerm));
+        // "강릉단오제" -> "단오제" search should work (case insensitive)
+        const term = state.searchTerm.toLowerCase();
+        result = result.filter(item => item.title.toLowerCase().includes(term) || item.location.toLowerCase().includes(term));
     }
 
     // 1. Filter by Region
