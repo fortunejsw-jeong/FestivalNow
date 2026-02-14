@@ -13,9 +13,11 @@
         rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script type="text/javascript"
-        src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=00c97f5f41142e0c774bf31ed625ecc1"></script>
-    <link rel="stylesheet" href="style.css">
+    <!-- Leaflet Map CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -44,7 +46,7 @@
             <div class="container">
                 <div class="hero-content">
                     <h1>지금 가장 <span class="highlight">핫한</span> 축제<br>화제의 중심을 확인하세요</h1>
-                    <p>문화 빅데이터 검색량 기준 TOP 5 축제를 실시간으로 추천해 드립니다.</p>
+                    <p>문화 빅데이터 검색량 기준 TOP 10 축제를 실시간으로 추천해 드립니다.</p>
                 </div>
                 <div class="hero-carousel" id="hero-carousel">
                     <!-- JS로 인기 축제 카드 삽입 -->

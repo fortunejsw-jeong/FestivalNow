@@ -215,13 +215,30 @@ function openModalById(id) {
     if (!festival) return;
 
     // Populate Data
-    document.getElementById('modal-image').src = festival.image;
     document.getElementById('modal-title').textContent = festival.title;
     document.getElementById('modal-location').innerHTML = `<i data-lucide="map-pin"></i> ${festival.location}`;
+
+    // Image fallback logic for modal
+    const modalImg = document.getElementById('modal-image');
+    modalImg.src = festival.image;
+    modalImg.onerror = function () {
+        handleImageError(this, 'modal');
+    };
+    // Ensure image is visible (in case it was hidden by previous error)
+    modalImg.style.display = 'block';
+    if (modalImg.parentElement.classList.contains('no-image')) {
+        modalImg.parentElement.classList.remove('no-image');
+    }
+
     document.getElementById('modal-date').textContent = festival.date;
     document.getElementById('modal-category').textContent = getCategoryName(festival.category);
     document.getElementById('modal-popularity').textContent = festival.popularity.toLocaleString();
-    document.getElementById('modal-desc').textContent = festival.description;
+    document.getElementById('modal-desc').textContent = festival.description || '상세 정보가 없습니다.';
+
+    // Update Map to this festival's location
+    if (festival.lat && festival.lng) {
+        updateMapMarker(festival.lat, festival.lng, festival.title);
+    }
 
     // Calculate D-Day
     const startDate = new Date(festival.date.split(' - ')[0]);
@@ -271,47 +288,12 @@ function getCategoryName(cat) {
 }
 
 // --- Map Logic ---
-let map;
+let map = null;
+let currentMarker = null;
 
-function initMap(retryCount = 0) {
+function initMap() {
     const container = document.getElementById('kakao-map');
-    // 1. SDK 로드 확인 (재시도 로직)
-    if (typeof kakao === 'undefined' || !kakao.maps) {
-        if (retryCount < 5) { // 재시도 횟수 줄임
-            setTimeout(() => initMap(retryCount + 1), 500);
-            return;
-        }
-
-        // Fallback: Show Static Map Image (Mock) or specific message
-        container.innerHTML = `
-            <div class="placeholder-content" style="background-image: url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=1000'); background-size: cover; background-position: center; height: 100%; width: 100%; position: relative;">
-                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; flex-direction: column; color: white;">
-                    <i data-lucide="map" style="width: 48px; height: 48px; margin-bottom: 15px; opacity: 0.9;"></i>
-                    <p style="font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">지도 서비스 준비중</p>
-                    <p style="font-size: 0.8rem; opacity: 0.8;">현재 위치 기반 서비스를 개선하고 있습니다.</p>
-                </div>
-            </div>
-        `;
-        lucide.createIcons();
-        return;
-    }
-
-    if (container.children.length > 0 && map) return;
-
-    const options = {
-        center: new kakao.maps.LatLng(36.5, 127.5),
-        level: 13
-    };
-
-    try {
-        map = new kakao.maps.Map(container, options);
-
-        // Add Markers for ALL data (not just filtered, or maybe filtered? let's do filtered)
-        // Actually, updating markers on filter change is better UX.
-        updateMapMarkers();
-    } catch (e) {
-        console.error("Map Error:", e);
-    }
+}
 }
 
 // Keep track of markers to remove them
