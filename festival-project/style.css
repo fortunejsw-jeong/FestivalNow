@@ -141,28 +141,126 @@ nav {
     max-width: 500px;
 }
 
+/* Hero Carousel - Rolling Effect */
+.hero-carousel-container {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
 .hero-carousel {
     display: flex;
     gap: 20px;
-    overflow-x: auto;
     padding-bottom: 20px;
-    scrollbar-width: none;
+    animation: scroll 40s linear infinite;
+    /* Auto scrolling */
+    width: max-content;
 }
 
-.hero-carousel::-webkit-scrollbar {
-    display: none;
+.hero-carousel:hover {
+    animation-play-state: paused;
 }
 
+@keyframes scroll {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+
+    /* Assumes content is duplicated for seamless loop */
+}
+
+/* Featured Card Restyling */
 .festival-card-featured {
-    min-width: 280px;
-    height: 380px;
+    min-width: 300px;
+    /* Slightly wider */
+    height: 400px;
     border-radius: 20px;
     position: relative;
     overflow: hidden;
     cursor: pointer;
     transition: transform 0.3s;
+    background-color: #1e293b;
+    border: 1px solid var(--border);
+}
+
+.festival-card-featured img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s;
+}
+
+/* Image Fallback Style */
+.festival-card-featured.no-image img,
+.festival-item.no-image img,
+.modal-body.no-image img {
+    display: none;
+}
+
+.festival-card-featured.no-image::before,
+.festival-item.no-image .item-img-placeholder,
+.modal-body.no-image .modal-img-placeholder {
+    content: '';
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color: #1e293b;
+    color: #cbd5e1;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Specific Fallback Layouts */
+.festival-card-featured.no-image::before {
+    content: 'FestivalNow';
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    background-image: linear-gradient(to bottom, #1e293b, #0f172a);
+}
+
+.festival-card-featured.no-image::after {
+    content: 'No Image';
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* List Item Fallback */
+.festival-item.no-image .item-img {
+    display: none;
+}
+
+.item-img-fallback {
+    width: 120px;
+    height: 120px;
+    border-radius: 10px;
     background-color: #334155;
-    /* Placeholder color */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+.item-img-fallback span.logo {
+    font-weight: bold;
+    color: var(--primary-color);
+    font-size: 0.9rem;
+}
+
+.item-img-fallback span.text {
+    font-size: 0.7rem;
+    color: #94a3b8;
 }
 
 .festival-card-featured:hover {

@@ -31,12 +31,17 @@ function initApp() {
 // 상단 인기 축제 (Hero Section) 렌더링
 function renderFeaturedFestivals() {
     const heroCarousel = document.getElementById('hero-carousel');
+    // Top 5 -> Top 7 to make carousel look fuller, or just use Top 5 and duplicate
     const featured = [...state.data].sort((a, b) => b.popularity - a.popularity).slice(0, 5);
 
-    heroCarousel.innerHTML = featured.map((festival, index) => `
+    // Duplicate for seamless infinite scroll
+    const carouselItems = [...featured, ...featured, ...featured];
+
+    heroCarousel.innerHTML = carouselItems.map((festival, index) => `
         <div class="festival-card-featured" onclick="openModalById(${festival.id})">
-            <img src="${festival.image}" alt="${festival.title}" onerror="this.src='https://via.placeholder.com/400x600?text=No+Image'">
-            <div class="rank-badge">HOT #${index + 1}</div>
+            <img src="${festival.image}" alt="${festival.title}" 
+                 onerror="handleImageError(this, 'card')">
+            <div class="rank-badge">HOT #${(index % 5) + 1}</div>
             <div class="card-overlay">
                 <h3>${festival.title}</h3>
                 <p>${festival.location}</p>
@@ -44,6 +49,22 @@ function renderFeaturedFestivals() {
         </div>
     `).join('');
 }
+
+// Global Image Error Handler
+window.handleImageError = function (img, type) {
+    if (type === 'card') {
+        img.parentElement.classList.add('no-image');
+    } else if (type === 'list') {
+        const fallback = document.createElement('div');
+        fallback.className = 'item-img-fallback';
+        fallback.innerHTML = '<span class="logo">FestivalNow</span><span class="text">No Image</span>';
+        img.parentElement.insertBefore(fallback, img);
+        img.style.display = 'none'; // Hide broken image
+    } else if (type === 'modal') {
+        // Modal logic can be similar or just use a placeholder
+        img.src = 'https://via.placeholder.com/600x400?text=FestivalNow+No+Image';
+    }
+};
 
 // 필터 및 정렬 적용 (핵심 로직)
 function applyFiltersAndSort() {
@@ -96,7 +117,7 @@ function renderFestivalList() {
 
     listElement.innerHTML = visibleData.map(festival => `
         <div class="festival-item" onclick="openModalById(${festival.id})">
-            <img src="${festival.image}" alt="${festival.title}" class="item-img">
+            <img src="${festival.image}" alt="${festival.title}" class="item-img" onerror="handleImageError(this, 'list')">
             <div class="item-info">
                 <h3 class="item-title">${festival.title}</h3>
                 <div class="item-meta">
