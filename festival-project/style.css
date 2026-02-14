@@ -618,6 +618,90 @@ nav {
     gap: 5px;
 }
 
+/* Map Section */
+.map-section {
+    padding: 60px 0;
+    background-color: var(--secondary-bg);
+}
+
+.map-container {
+    width: 100%;
+    height: 500px;
+    background-color: #334155;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+/* Calendar Section */
+.calendar-section {
+    padding: 60px 0;
+    background-color: var(--bg-color);
+    /* Darker contrast */
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.calendar-item {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.calendar-item:hover {
+    transform: translateY(-3px);
+    background: #2d3748;
+}
+
+.cal-date-box {
+    background: var(--primary-color);
+    color: white;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 60px;
+}
+
+.cal-month {
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+.cal-day {
+    font-size: 1.5rem;
+    font-weight: bold;
+    line-height: 1.1;
+}
+
+.cal-year {
+    font-size: 0.7rem;
+    opacity: 0.8;
+}
+
+.cal-info h4 {
+    margin: 0 0 5px;
+    font-size: 1rem;
+    color: var(--text-color);
+}
+
+.cal-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
 .modal-body {
     padding: 0 30px 30px;
 }

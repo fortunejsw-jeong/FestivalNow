@@ -9,7 +9,8 @@ let state = {
     visibleCount: 8, // Pagination limit
     currentCategory: 'all',
     currentRegion: 'all',
-    sortMode: 'popularity'
+    sortMode: 'popularity',
+    searchTerm: '' // New search state
 };
 
 function initApp() {
@@ -19,6 +20,7 @@ function initApp() {
 
     // 2. Initial Render
     renderFeaturedFestivals();
+    renderCalendar(); // New Calendar Render
     applyFiltersAndSort(); // This triggers renderFestivalList
 
     // 3. Setup Events
@@ -28,47 +30,19 @@ function initApp() {
     initMap();
 }
 
-// 상단 인기 축제 (Hero Section) 렌더링
-function renderFeaturedFestivals() {
-    const heroCarousel = document.getElementById('hero-carousel');
-    // Show Top 10
-    const featured = [...state.data].sort((a, b) => b.popularity - a.popularity).slice(0, 10);
+// ... renderFeaturedFestivals ...
 
-    // Duplicate for seamless infinite scroll (Top 10 * 2 is enough for smooth loop usually, or 3)
-    const carouselItems = [...featured, ...featured];
-
-    heroCarousel.innerHTML = carouselItems.map((festival, index) => `
-        <div class="festival-card-featured" onclick="openModalById(${festival.id})">
-            <img src="${festival.image}" alt="${festival.title}"
-                 onerror="handleImageError(this, 'card')">
-            <div class="rank-badge">HOT #${(index % 10) + 1}</div>
-            <div class="card-overlay">
-                <h3>${festival.title}</h3>
-                <p>${festival.location}</p>
-            </div>
-        </div>
-    `).join('');
-}
-
-// Global Image Error Handler
-window.handleImageError = function (img, type) {
-    if (type === 'card') {
-        img.parentElement.classList.add('no-image');
-    } else if (type === 'list') {
-        const fallback = document.createElement('div');
-        fallback.className = 'item-img-fallback';
-        fallback.innerHTML = '<span class="logo">FestivalNow</span><span class="text">No Image</span>';
-        img.parentElement.insertBefore(fallback, img);
-        img.style.display = 'none'; // Hide broken image
-    } else if (type === 'modal') {
-        // Modal logic can be similar or just use a placeholder
-        img.src = 'https://via.placeholder.com/600x400?text=FestivalNow+No+Image';
-    }
-};
+// ... handleImageError ...
 
 // 필터 및 정렬 적용 (핵심 로직)
 function applyFiltersAndSort() {
     let result = state.data;
+
+    // 0. Filter by Search Term
+    if (state.searchTerm) {
+        // "강릉단오제" -> "단오제" search should work
+        result = result.filter(item => item.title.includes(state.searchTerm));
+    }
 
     // 1. Filter by Region
     if (state.currentRegion !== 'all') {
@@ -93,7 +67,8 @@ function applyFiltersAndSort() {
     if (state.sortMode === 'popularity') {
         result.sort((a, b) => b.popularity - a.popularity);
     } else if (state.sortMode === 'date') {
-        result.sort((a, b) => new Date(a.date.split(' - ')[0]) - new Date(b.date.split(' - ')[0]));
+        // Simple string comparison for "YYYY.MM.DD" format works for sorting by start date
+        result.sort((a, b) => a.date.localeCompare(b.date));
     }
 
     state.filtered = result;
@@ -101,51 +76,24 @@ function applyFiltersAndSort() {
     renderFestivalList();
 }
 
-// 리스트 렌더링 (페이지네이션 적용)
-function renderFestivalList() {
-    const listElement = document.getElementById('festival-list');
-    const loadMoreBtn = document.getElementById('load-more-btn');
 
-    // Slice data based on visibleCount
-    const visibleData = state.filtered.slice(0, state.visibleCount);
-
-    if (visibleData.length === 0) {
-        listElement.innerHTML = '<div class="no-results" style="text-align:center; padding: 40px; color:#94a3b8;">검색 결과가 없습니다.</div>';
-        loadMoreBtn.style.display = 'none';
-        return;
-    }
-
-    listElement.innerHTML = visibleData.map(festival => `
-        <div class="festival-item" onclick="openModalById(${festival.id})">
-            <img src="${festival.image}" alt="${festival.title}" class="item-img" onerror="handleImageError(this, 'list')">
-            <div class="item-info">
-                <h3 class="item-title">${festival.title}</h3>
-                <div class="item-meta">
-                    <span><i data-lucide="map-pin"></i> ${festival.location}</span>
-                    <span><i data-lucide="calendar"></i> ${festival.date}</span>
-                    <span><i data-lucide="trending-up"></i> 화제성: ${festival.popularity.toLocaleString()}</span>
-                </div>
-            </div>
-        </div>
-    `).join('');
-
-    lucide.createIcons();
-
-    // Show/Hide Load More Button
-    if (state.filtered.length > state.visibleCount) {
-        loadMoreBtn.style.display = 'flex';
-    } else {
-        loadMoreBtn.style.display = 'none';
-    }
-}
-
-function updateTotalCount(count) {
-    document.getElementById('count-value').textContent = count;
-}
+// ... renderFestivalList ...
+// ... updateTotalCount ...
 
 // 이벤트 리스너 설정
 function setupEventListeners() {
-    // 1. Region & Theme Filters (Delegation approach or simple loop)
+    // 0. Search Input
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            state.searchTerm = e.target.value.trim();
+            state.visibleCount = 8; // Reset paging
+            applyFiltersAndSort();
+        });
+    }
+
+    // 1. Region & Theme Filters
+    // ... (existing code) ...
     const chips = document.querySelectorAll('.filter-chip');
     chips.forEach(chip => {
         chip.addEventListener('click', () => {
@@ -153,11 +101,6 @@ function setupEventListeners() {
             if (chip.hasAttribute('data-region')) {
                 // Region Click
                 document.querySelectorAll('.filter-chip[data-region]').forEach(c => c.classList.remove('active'));
-
-                // If clicking active one again? (Optional toggle, but let's stick to radio behavior for now)
-
-                // Special case: 'All' button usually resets both or just category? 
-                // Let's assume the top 'All' resets everything.
             } else if (chip.hasAttribute('data-category')) {
                 // Category Click
                 if (chip.getAttribute('data-category') === 'all') {
@@ -208,6 +151,35 @@ function setupEventListeners() {
         if (e.target.id === 'festival-modal') closeModal();
     });
 }
+
+// ... Detail Logic ...
+
+// --- Calendar Logic (New) ---
+function renderCalendar() {
+    const calendarGrid = document.getElementById('calendar-grid');
+    if (!calendarGrid) return;
+
+    // Get festivals starting this month (Mock logic using random dates from data)
+    // Actually, let's just show top 4 upcoming festivals sorted by date
+    // Sort all data by date
+    const sortedByDate = [...state.data].sort((a, b) => a.date.localeCompare(b.date));
+    const upcoming = sortedByDate.slice(0, 4);
+
+    calendarGrid.innerHTML = upcoming.map(festival => `
+        <div class="calendar-item" onclick="openModalById(${festival.id})">
+            <div class="cal-date-box">
+                <span class="cal-month">${festival.date.substring(5, 7)}월</span>
+                <span class="cal-day">${festival.date.substring(8, 10)}</span>
+                <span class="cal-year">${festival.date.substring(0, 4)}</span>
+            </div>
+            <div class="cal-info">
+                <h4>${festival.title}</h4>
+                <p>${festival.location}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
 
 // --- Detail Modal Logic ---
 function openModalById(id) {
