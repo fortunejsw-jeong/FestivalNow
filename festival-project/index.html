@@ -59,6 +59,17 @@
                 <h2>전국 축제 탐색</h2>
                 <div class="filter-group">
                     <button class="filter-chip active" data-category="all">전체</button>
+                    <!-- Region Filters -->
+                    <button class="filter-chip region-chip" data-region="seoul-gyeonggi">서울/경기</button>
+                    <button class="filter-chip region-chip" data-region="gangwon">강원</button>
+                    <button class="filter-chip region-chip" data-region="chungcheong">충청</button>
+                    <button class="filter-chip region-chip" data-region="jeolla">전라</button>
+                    <button class="filter-chip region-chip" data-region="gyeongsang">경상</button>
+                    <button class="filter-chip region-chip" data-region="jeju">제주</button>
+
+                    <div class="divider" style="width: 1px; height: 20px; background: #333; margin: 0 10px;"></div>
+
+                    <!-- Theme Filters -->
                     <button class="filter-chip" data-category="cultural">전통/문화</button>
                     <button class="filter-chip" data-category="music">음악/예술</button>
                     <button class="filter-chip" data-category="nature">자연/꽃</button>
@@ -79,6 +90,10 @@
                     <div id="festival-list" class="festival-list">
                         <!-- JS로 리스트 카드 삽입 -->
                     </div>
+
+                    <!-- Load More Button -->
+                    <button id="load-more-btn" class="btn-load-more" style="display: none;">더 보기 <i
+                            data-lucide="chevron-down"></i></button>
                 </div>
 
                 <!-- Right: Map View -->
@@ -93,6 +108,39 @@
             </div>
         </section>
     </main>
+
+    <!-- Detailed Modal -->
+    <div id="festival-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close"><i data-lucide="x"></i></button>
+            <div class="modal-header">
+                <span class="modal-badge" id="modal-d-day">D-Day</span>
+                <h2 id="modal-title">Festival Title</h2>
+                <p id="modal-location"><i data-lucide="map-pin"></i> Location</p>
+            </div>
+            <div class="modal-body">
+                <img id="modal-image" src="" alt="Festival Image">
+                <div class="modal-info-grid">
+                    <div class="info-item">
+                        <span class="label">기간</span>
+                        <span class="value" id="modal-date">Date</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">카테고리</span>
+                        <span class="value" id="modal-category">Category</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">관심도</span>
+                        <span class="value" id="modal-popularity">0</span>
+                    </div>
+                </div>
+                <p id="modal-desc" class="modal-description">Description...</p>
+                <div class="modal-actions">
+                    <button class="btn-primary" id="modal-map-link">지도에서 위치 보기</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <footer>
         <div class="container">
