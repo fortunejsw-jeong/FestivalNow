@@ -161,6 +161,8 @@ nav {
     overflow: hidden;
     cursor: pointer;
     transition: transform 0.3s;
+    background-color: #334155;
+    /* Placeholder color */
 }
 
 .festival-card-featured:hover {

@@ -35,7 +35,7 @@ function renderFeaturedFestivals() {
 
     heroCarousel.innerHTML = featured.map((festival, index) => `
         <div class="festival-card-featured" onclick="openModalById(${festival.id})">
-            <img src="${festival.image}" alt="${festival.title}">
+            <img src="${festival.image}" alt="${festival.title}" onerror="this.src='https://via.placeholder.com/400x600?text=No+Image'">
             <div class="rank-badge">HOT #${index + 1}</div>
             <div class="card-overlay">
                 <h3>${festival.title}</h3>
