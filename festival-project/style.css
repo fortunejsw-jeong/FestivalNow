@@ -113,29 +113,47 @@ nav {
 /* Hero Section */
 .hero {
     padding: 60px 0;
+    overflow: hidden;
+    /* Prevent horizontal scrollbar on viewport */
 }
 
 .hero .container {
-    display: grid;
-    grid-template-columns: minmax(300px, 0.8fr) 1.2fr;
-    /* Give content specific min-width, rest to carousel */
-    gap: 40px;
+    display: flex;
+    /* Switch to Flexbox for better control */
     align-items: center;
+    gap: 40px;
+    height: 100%;
 }
 
 .hero-content {
+    flex: 0 0 400px;
+    /* Fixed width for text content */
+    z-index: 10;
+    position: relative;
+    background: transparent;
+    /* Ensure no background blocks anything if not needed, but z-index helps */
+}
+
+.hero-carousel-container {
+    flex: 1;
+    /* Take remaining space */
     min-width: 0;
-    /* Prevent flex/grid child blowout */
+    /* Allow shrinking if needed */
+    overflow: hidden;
+    /* Mask the carousel */
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    /* Fade edges */
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
 }
 
 .hero-content h1 {
     font-size: 3rem;
-    /* Reduced from 3.5rem */
     line-height: 1.2;
     margin-bottom: 20px;
     font-weight: 800;
     word-break: keep-all;
-    /* Prevent awkward mid-word breaks */
+    white-space: normal;
+    /* Actually let it wrap */
 }
 
 .hero-content .highlight {

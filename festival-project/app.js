@@ -275,12 +275,24 @@ let map;
 
 function initMap(retryCount = 0) {
     const container = document.getElementById('kakao-map');
+    // 1. SDK 로드 확인 (재시도 로직)
     if (typeof kakao === 'undefined' || !kakao.maps) {
-        if (retryCount < 20) {
+        if (retryCount < 5) { // 재시도 횟수 줄임
             setTimeout(() => initMap(retryCount + 1), 500);
             return;
         }
-        container.innerHTML = `<div class="placeholder-content"><p>지도를 불러올 수 없습니다.</p></div>`;
+
+        // Fallback: Show Static Map Image (Mock) or specific message
+        container.innerHTML = `
+            <div class="placeholder-content" style="background-image: url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=1000'); background-size: cover; background-position: center; height: 100%; width: 100%; position: relative;">
+                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; flex-direction: column; color: white;">
+                    <i data-lucide="map" style="width: 48px; height: 48px; margin-bottom: 15px; opacity: 0.9;"></i>
+                    <p style="font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">지도 서비스 준비중</p>
+                    <p style="font-size: 0.8rem; opacity: 0.8;">현재 위치 기반 서비스를 개선하고 있습니다.</p>
+                </div>
+            </div>
+        `;
+        lucide.createIcons();
         return;
     }
 
