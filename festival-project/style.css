@@ -146,6 +146,8 @@ nav {
     width: 100%;
     overflow: hidden;
     position: relative;
+    min-width: 0;
+    /* Critical for Grid to contain wide overflow content */
 }
 
 .hero-carousel {
