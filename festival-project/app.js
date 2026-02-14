@@ -292,81 +292,68 @@ let map = null;
 let currentMarker = null;
 
 function initMap() {
-    const container = document.getElementById('kakao-map');
-}
+    // Check if Leaflet is loaded
+    if (typeof L === 'undefined') {
+        const container = document.getElementById('kakao-map');
+        if (container) {
+            container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100%;color:#ccc;">Map Resource Failed</div>';
+        }
+        return;
+    }
+
+    // Default to Top 1 Festival (or Seoul)
+    // state.data is already sorted by popularity from initApp -> applyFiltersAndSort (initially)
+    // But initApp calls initMap AFTER sorting?
+    // Actually state.data is sorted by default in data.js too.
+    const topFestival = state.data[0];
+    const defaultLat = topFestival ? topFestival.lat : 37.5665;
+    const defaultLng = topFestival ? topFestival.lng : 126.9780;
+
+    // Initialize Map
+    map = L.map('kakao-map').setView([defaultLat, defaultLng], 12);
+
+    // Add Tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; FestivalNow'
+    }).addTo(map);
+
+    // Add Initial Marker
+    if (topFestival) {
+        updateMapMarker(defaultLat, defaultLng, topFestival.title);
+    }
 }
 
-// Keep track of markers to remove them
-let markers = [];
-
-function updateMapMarkers() {
+function updateMapMarker(lat, lng, title) {
     if (!map) return;
 
     // Clear existing
-    markers.forEach(m => m.setMap(null));
-    markers = [];
+    if (currentMarker) {
+        map.removeLayer(currentMarker);
+    }
 
-    // Add new from filtered list
-    state.filtered.forEach(festival => {
-        const position = new kakao.maps.LatLng(festival.lat, festival.lng);
-        const marker = new kakao.maps.Marker({
-            position: position,
-            title: festival.title
-        });
-        marker.setMap(map);
-        markers.push(marker);
+    // Add new
+    currentMarker = L.marker([lat, lng]).addTo(map)
+        .bindPopup(title)
+        .openPopup();
 
-        kakao.maps.event.addListener(marker, 'click', function () {
-            openModalById(festival.id);
-        });
+    // Move view
+    map.flyTo([lat, lng], 13, {
+        animate: true,
+        duration: 1.5
     });
 }
 
 function moveToMap(lat, lng) {
     if (!map) return;
-    const moveLatLon = new kakao.maps.LatLng(lat, lng);
-    map.setCenter(moveLatLon);
-    map.setLevel(9);
+    map.flyTo([lat, lng], 13);
 }
 
-// Override render to update map too
-const originalRender = renderFestivalList;
-renderFestivalList = function () {
-    // Call original logic
-    const listElement = document.getElementById('festival-list');
-    const loadMoreBtn = document.getElementById('load-more-btn');
+// Override render logic? NO, we integrate map updates into existing functions.
+// We DO NOT override renderFestivalList anymore.
+// Instead, if we want markers for ALL items in the list, we can add that logic.
+// For now, the user requested: "Video map shows Top 1 default, and clicking festival shows its map".
+// This is handled by openModalById calling updateMapMarker.
+// If the user wants markers for ALL filtered items on the map simultaneously, we'd need a different approach.
+// But the prompt said: "map defaults to top 1... when clicking festival, show THAT festival's map".
+// So single marker logic is safer and cleaner for now.
 
-    // Slice data based on visibleCount
-    const visibleData = state.filtered.slice(0, state.visibleCount);
-
-    if (visibleData.length === 0) {
-        listElement.innerHTML = '<div class="no-results" style="text-align:center; padding: 40px; color:#94a3b8;">검색 결과가 없습니다.</div>';
-        loadMoreBtn.style.display = 'none';
-        updateMapMarkers(); // Update map even if empty
-        return;
-    }
-
-    listElement.innerHTML = visibleData.map(festival => `
-        <div class="festival-item" onclick="openModalById(${festival.id})">
-            <img src="${festival.image}" alt="${festival.title}" class="item-img">
-            <div class="item-info">
-                <h3 class="item-title">${festival.title}</h3>
-                <div class="item-meta">
-                    <span><i data-lucide="map-pin"></i> ${festival.location}</span>
-                    <span><i data-lucide="calendar"></i> ${festival.date}</span>
-                    <span><i data-lucide="trending-up"></i> 관심도: ${festival.popularity.toLocaleString()}</span>
-                </div>
-            </div>
-        </div>
-    `).join('');
-
-    lucide.createIcons();
-
-    if (state.filtered.length > state.visibleCount) {
-        loadMoreBtn.style.display = 'flex';
-    } else {
-        loadMoreBtn.style.display = 'none';
-    }
-
-    updateMapMarkers();
-};
