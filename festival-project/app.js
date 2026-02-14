@@ -1,9 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
-    initApp();
-});
-
-// State Managment
-let state = {
+var state = {
     data: [], // All data
     filtered: [], // Currently filtered data
     visibleCount: 8, // Pagination limit
@@ -12,6 +7,10 @@ let state = {
     sortMode: 'popularity',
     searchTerm: '' // New search state
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+    initApp();
+});
 
 function initApp() {
     // 1. Initialize data from global object
@@ -30,9 +29,43 @@ function initApp() {
     initMap();
 }
 
-// ... renderFeaturedFestivals ...
+// 상단 인기 축제 (Hero Section) 렌더링
+function renderFeaturedFestivals() {
+    const heroCarousel = document.getElementById('hero-carousel');
+    // Show Top 10
+    const featured = [...state.data].sort((a, b) => b.popularity - a.popularity).slice(0, 10);
 
-// ... handleImageError ...
+    // Duplicate for seamless infinite scroll (Top 10 * 2 is enough for smooth loop usually, or 3)
+    const carouselItems = [...featured, ...featured];
+
+    heroCarousel.innerHTML = carouselItems.map((festival, index) => `
+        <div class="festival-card-featured" onclick="openModalById(${festival.id})">
+            <img src="${festival.image}" alt="${festival.title}"
+                 onerror="handleImageError(this, 'card')">
+            <div class="rank-badge">HOT #${(index % 10) + 1}</div>
+            <div class="card-overlay">
+                <h3>${festival.title}</h3>
+                <p>${festival.location}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Global Image Error Handler
+window.handleImageError = function (img, type) {
+    if (type === 'card') {
+        img.parentElement.classList.add('no-image');
+    } else if (type === 'list') {
+        const fallback = document.createElement('div');
+        fallback.className = 'item-img-fallback';
+        fallback.innerHTML = '<span class="logo">FestivalNow</span><span class="text">No Image</span>';
+        img.parentElement.insertBefore(fallback, img);
+        img.style.display = 'none'; // Hide broken image
+    } else if (type === 'modal') {
+        // Modal logic can be similar or just use a placeholder
+        img.src = 'https://via.placeholder.com/600x400?text=FestivalNow+No+Image';
+    }
+};
 
 // 필터 및 정렬 적용 (핵심 로직)
 function applyFiltersAndSort() {
@@ -77,9 +110,47 @@ function applyFiltersAndSort() {
     renderFestivalList();
 }
 
+// 리스트 렌더링 (페이지네이션 적용)
+function renderFestivalList() {
+    const listElement = document.getElementById('festival-list');
+    const loadMoreBtn = document.getElementById('load-more-btn');
 
-// ... renderFestivalList ...
-// ... updateTotalCount ...
+    // Slice data based on visibleCount
+    const visibleData = state.filtered.slice(0, state.visibleCount);
+
+    if (visibleData.length === 0) {
+        listElement.innerHTML = '<div class="no-results" style="text-align:center; padding: 40px; color:#94a3b8;">검색 결과가 없습니다.</div>';
+        loadMoreBtn.style.display = 'none';
+        return;
+    }
+
+    listElement.innerHTML = visibleData.map(festival => `
+        <div class="festival-item" onclick="openModalById(${festival.id})">
+            <img src="${festival.image}" alt="${festival.title}" class="item-img" onerror="handleImageError(this, 'list')">
+            <div class="item-info">
+                <h3 class="item-title">${festival.title}</h3>
+                <div class="item-meta">
+                    <span><i data-lucide="map-pin"></i> ${festival.location}</span>
+                    <span><i data-lucide="calendar"></i> ${festival.date}</span>
+                    <span><i data-lucide="trending-up"></i> 화제성: ${festival.popularity.toLocaleString()}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    lucide.createIcons();
+
+    // Show/Hide Load More Button
+    if (state.filtered.length > state.visibleCount) {
+        loadMoreBtn.style.display = 'flex';
+    } else {
+        loadMoreBtn.style.display = 'none';
+    }
+}
+
+function updateTotalCount(count) {
+    document.getElementById('count-value').textContent = count;
+}
 
 // 이벤트 리스너 설정
 function setupEventListeners() {
@@ -93,8 +164,7 @@ function setupEventListeners() {
         });
     }
 
-    // 1. Region & Theme Filters
-    // ... (existing code) ...
+    // 1. Region & Theme Filters (Delegation approach or simple loop)
     const chips = document.querySelectorAll('.filter-chip');
     chips.forEach(chip => {
         chip.addEventListener('click', () => {
@@ -152,8 +222,6 @@ function setupEventListeners() {
         if (e.target.id === 'festival-modal') closeModal();
     });
 }
-
-// ... Detail Logic ...
 
 // --- Calendar Logic (New) ---
 function renderCalendar() {
@@ -320,13 +388,3 @@ function moveToMap(lat, lng) {
     if (!map) return;
     map.flyTo([lat, lng], 13);
 }
-
-// Override render logic? NO, we integrate map updates into existing functions.
-// We DO NOT override renderFestivalList anymore.
-// Instead, if we want markers for ALL items in the list, we can add that logic.
-// For now, the user requested: "Video map shows Top 1 default, and clicking festival shows its map".
-// This is handled by openModalById calling updateMapMarker.
-// If the user wants markers for ALL filtered items on the map simultaneously, we'd need a different approach.
-// But the prompt said: "map defaults to top 1... when clicking festival, show THAT festival's map".
-// So single marker logic is safer and cleaner for now.
-
