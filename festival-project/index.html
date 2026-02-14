@@ -81,14 +81,36 @@
                         <button class="filter-chip" data-category="food">푸드/특산물</button>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <!-- Map Section -->
-        <section id="map" class="map-section">
-            <div class="container">
-                <h2 class="section-title">지역별 축제 지도</h2>
-                <div id="kakao-map" class="map-container"></div>
+                <div class="content-layout">
+                    <!-- Left: List -->
+                    <div class="festival-list-container">
+                        <div class="list-header" style="margin-bottom: 20px;">
+                            <h3 style="font-size: 1.5rem;">축제 전체 목록 (Top 100)</h3>
+                            <div class="list-controls">
+                                <span class="total-count">총 <span id="count-value">0</span>개의 축제</span>
+                                <select id="sort-select">
+                                    <option value="popularity">인기순</option>
+                                    <option value="date">날짜순</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="festival-list" class="festival-list">
+                            <!-- JS populates list -->
+                        </div>
+
+                        <div style="display: flex; justify-content: center; margin-top: 30px;">
+                            <button id="load-more-btn" class="btn-load-more" style="display: none;">더 보기 <i
+                                    data-lucide="chevron-down"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Map -->
+                    <div class="map-container" id="map-view">
+                        <div id="kakao-map" style="width:100%; height:100%;"></div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -98,31 +120,6 @@
                 <h2 class="section-title">공연 일정 (예정)</h2>
                 <div id="calendar-grid" class="calendar-grid">
                     <!-- JS will populate this -->
-                </div>
-            </div>
-        </section>
-
-        <!-- Festival List Section -->
-        <section class="list-section">
-            <div class="container">
-                <div class="list-header">
-                    <h3 style="margin-bottom: 20px; font-size: 1.5rem;">축제 전체 목록 (Top 100)</h3>
-                    <div class="list-controls">
-                        <span class="total-count">총 <span id="count-value">0</span>개의 축제</span>
-                        <select id="sort-select">
-                            <option value="popularity">인기순</option>
-                            <option value="date">날짜순</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div id="festival-list" class="festival-list">
-                    <!-- JS populates list -->
-                </div>
-
-                <div style="display: flex; justify-content: center; margin-top: 30px;">
-                    <button id="load-more-btn" class="btn-load-more" style="display: none;">더 보기 <i
-                            data-lucide="chevron-down"></i></button>
                 </div>
             </div>
         </section>
